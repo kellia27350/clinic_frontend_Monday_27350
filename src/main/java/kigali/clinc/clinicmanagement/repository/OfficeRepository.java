@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import kigali.clinc.clinicmanagement.domain.Office;
 
-@Repository 
+@Repository
 public interface OfficeRepository extends  JpaRepository<Office,UUID >{
     
     Office findByOfficeNumber(int officeNumber);
@@ -20,7 +20,7 @@ public interface OfficeRepository extends  JpaRepository<Office,UUID >{
 
     Boolean existsByOfficeNumber(int officeNumber);
 
-    // C3: name, number, appointment count - pass PageRequest.of(0, 1) to get only the top row
+    // C3: name, number, appointment count — pass PageRequest.of(0,1) for the top row
     @Query("""
         select o.name, o.officeNumber, count(a)
         from Appointment a join a.doctor d join d.office o
@@ -28,4 +28,12 @@ public interface OfficeRepository extends  JpaRepository<Office,UUID >{
         order by count(a) desc
         """)
     List<Object[]> findBusiest(Pageable top);
+
+    // A3 — offices with no doctor, sorted by office number (JPQL NOT EXISTS)
+    @Query("""
+        select o from Office o
+        where not exists (select d from Doctor d where d.office = o)
+        order by o.officeNumber
+        """)
+    List<Office> findFreeOffices();
 }

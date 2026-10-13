@@ -1,6 +1,7 @@
 package kigali.clinc.clinicmanagement.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +12,8 @@ import kigali.clinc.clinicmanagement.domain.Patient;
 
 public interface PatientRepository extends JpaRepository<Patient, UUID> {
 
-    
+    Optional<Patient> findBySsNumber(String ssNumber);
+
     List<Patient> findByLastNameIgnoreCaseOrderByFirstNameAsc(String lastName);
 
    

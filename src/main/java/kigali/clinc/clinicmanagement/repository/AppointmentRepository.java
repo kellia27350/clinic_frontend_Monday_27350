@@ -73,4 +73,23 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
         and a.appointmentDate < :date
         """)
     int deleteCancelledBefore(@Param("date") LocalDate date);
+
+    // D1 — doctor's appointments on a date, without CANCELLED ones (DERIVED)
+    List<Appointment> findByDoctorIdAndAppointmentDateAndStatusNot(
+        UUID doctorId, LocalDate date, AppointmentStatus status);
+
+    // D2 — patient's upcoming appointments, SCHEDULED or CONFIRMED, soonest first (DERIVED)
+    List<Appointment> findByPatientSsNumberAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
+        String ssNumber, LocalDate date, List<AppointmentStatus> statuses);
+
+    // Bonus — doctor workload: COMPLETED appointments per doctor between two dates (JPQL)
+    @Query("""
+        select d.firstName, d.lastName, count(a)
+        from Appointment a join a.doctor d
+        where a.status = kigali.clinc.clinicmanagement.domain.AppointmentStatus.COMPLETED
+          and a.appointmentDate between :start and :end
+        group by d.id, d.firstName, d.lastName
+        order by count(a) desc
+        """)
+    List<Object[]> countWorkload(@Param("start") LocalDate start, @Param("end") LocalDate end);
 }

@@ -1,58 +1,36 @@
 package kigali.clinc.clinicmanagement.controller;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import java.util.List;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import kigali.clinc.clinicmanagement.domain.Office;
 import kigali.clinc.clinicmanagement.service.OfficeService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
-
-
-@RestController 
+@RestController
 @RequestMapping({"/api/offices", "/api/office"})
 public class OfficeController {
-    
 
-    @Autowired 
-    private OfficeService officeServes;
+    @Autowired private OfficeService officeService;
 
-
-    @PostMapping(value = "/save", consumes = MediaType.APPLICATION_JSON_VALUE,
-        produces  = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<?>  saveOffice(@RequestBody  Office office){
-
-        String returnedMessage = officeServes.saveOffice(office);
-
-        if(returnedMessage.equalsIgnoreCase("Office is saved Successfully")){
-            return new ResponseEntity<>(returnedMessage, HttpStatus.CREATED);
-        }else{
-            return new ResponseEntity<>(returnedMessage, HttpStatus.CONFLICT);
-        }
-        
+    @PostMapping("/save")
+    public ResponseEntity<String> save(@RequestBody Office office) {
+        String msg = officeService.save(office);
+        HttpStatus status = msg.contains("Successfully") ? HttpStatus.CREATED : HttpStatus.CONFLICT;
+        return new ResponseEntity<>(msg, status);
     }
 
     @GetMapping("/all")
-    public List<Office> all() {
-        return officeServes.getAll();
-    }
+    public List<Office> all() { return officeService.getAll(); }
 
-   
+    // A3 — offices with no doctor
+    @GetMapping("/free")
+    public List<Office> free() { return officeService.getFreeOffices(); }
+
     @GetMapping("/busiest")
     public ResponseEntity<?> busiest() {
-        List<Object[]> top = officeServes.getBusiest();
-        if (top.isEmpty()) {
-            return ResponseEntity.ok("No appointments yet");
-        }
-        return ResponseEntity.ok(top.get(0));
+        List<Object[]> top = officeService.getBusiest();
+        return top.isEmpty() ? ResponseEntity.ok("No appointments yet") : ResponseEntity.ok(top.get(0));
     }
 }
