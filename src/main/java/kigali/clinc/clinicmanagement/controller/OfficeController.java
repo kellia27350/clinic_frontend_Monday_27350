@@ -33,4 +33,11 @@ public class OfficeController {
         List<Object[]> top = officeService.getBusiest();
         return top.isEmpty() ? ResponseEntity.ok("No appointments yet") : ResponseEntity.ok(top.get(0));
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> delete(@PathVariable java.util.UUID id) {
+        String msg = officeService.delete(id);
+        HttpStatus status = msg.contains("Successfully") ? HttpStatus.OK : HttpStatus.NOT_FOUND;
+        return new ResponseEntity<>(msg, status);
+    }
 }

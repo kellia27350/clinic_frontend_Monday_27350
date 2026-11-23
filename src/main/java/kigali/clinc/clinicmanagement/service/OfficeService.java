@@ -1,6 +1,7 @@
 package kigali.clinc.clinicmanagement.service;
 
 import java.util.List;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -31,5 +32,12 @@ public class OfficeService {
     // returns the single busiest office by appointment count
     public List<Object[]> getBusiest() {
         return officeRepo.findBusiest(PageRequest.of(0, 1));
+    }
+
+    public String delete(UUID id) {
+        if (!officeRepo.existsById(id))
+            return "Office not found";
+        officeRepo.deleteById(id);
+        return "Office deleted Successfully";
     }
 }
